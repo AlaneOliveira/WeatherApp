@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "670419379627",
+    "project_id": "storied-shore-477911-e1",
+    "storage_bucket": "storied-shore-477911-e1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:670419379627:android:747521e4f84a09a8db1eee",
+        "android_client_info": {
+          "package_name": "com.example.pratica_0"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBv3RC8EjHa-3EcZn13uBuCgZR4tbmNn2Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

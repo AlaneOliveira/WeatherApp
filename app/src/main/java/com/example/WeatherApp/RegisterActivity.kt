@@ -33,6 +33,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.WeatherApp.ui.theme.WeatherAppTheme
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
 
 class RegisterActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -110,27 +112,38 @@ fun RegisterPage(modifier: Modifier = Modifier) {
         Row(modifier = modifier) {
             Button(
                 onClick = {
-                    Toast.makeText(activity, "Registro OK!", Toast.LENGTH_LONG).show()
-                    activity.startActivity(
-                        Intent(activity, MainActivity::class.java).setFlags(
-                            FLAG_ACTIVITY_SINGLE_TOP
-                        )
-                    )
+                    // Criar usuário no Firebase
+                    Firebase.auth.createUserWithEmailAndPassword(email, password)
+                        .addOnCompleteListener(activity) { task ->
+                            if (task.isSuccessful) {
+                                // Usuário criado com sucesso
+                                Toast.makeText(activity, "Registro OK!", Toast.LENGTH_LONG).show()
+
+                                // Abrir MainActivity
+                                activity.startActivity(
+                                    Intent(activity, MainActivity::class.java)
+                                        .setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                                )
+
+                                activity.finish() // Fecha a activity de registro
+                            } else {
+                                // Falha ao criar usuário
+                                Toast.makeText(activity, "Registro FALHOU!", Toast.LENGTH_LONG).show()
+                            }
+                        }
                 },
-                enabled = (name.isNotEmpty() && email.isNotEmpty() && password.isNotEmpty() && password1.isNotEmpty()) && password == password1
-            )
-            {
+                enabled = name.isNotEmpty() &&
+                        email.isNotEmpty() &&
+                        password.isNotEmpty() &&
+                        password1.isNotEmpty() &&
+                        password == password1
+            ) {
                 Text("Registrar")
             }
+
             Spacer(modifier = modifier.size(14.dp))
             Button(
-                onClick = {  name = ""; email = ""; password = ""; password1 = "" }
-            ) {
-                Text("Limpar")
-            }
-            Spacer(modifier = modifier.size(14.dp))
-            Button(
-                onClick = { activity.finish() }
+                onClick = {  }
             ) {
                 Text("Sair")
             }
