@@ -2,7 +2,6 @@ package com.example.WeatherApp
 
 import android.app.Activity
 import android.content.Intent
-import android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -32,6 +31,9 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.WeatherApp.model.User
+import com.example.WeatherApp.dbfb.FBDatabase
+import com.example.WeatherApp.dbfb.toFBUser
 import com.example.WeatherApp.ui.theme.WeatherAppTheme
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
@@ -118,6 +120,8 @@ fun RegisterPage(modifier: Modifier = Modifier) {
                             if (task.isSuccessful) {
                                 // Usuário criado com sucesso
                                 Toast.makeText(activity, "Registro OK!", Toast.LENGTH_LONG).show()
+                                FBDatabase().register(User(name, email).toFBUser()) //Nesse código, usamos uma instância temporária do FBDatabase para criar o usuário no banco de dados do Firebase.
+
 
                                 // Abrir MainActivity
                                 activity.startActivity(

@@ -6,7 +6,6 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -24,11 +23,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.compose.rememberNavController
+
 import com.example.WeatherApp.model.MainViewModel
+import com.example.WeatherApp.model.MainViewModelFactory
 import com.example.WeatherApp.ui.CityDialog
+import com.example.WeatherApp.dbfb.FBDatabase
 import com.example.WeatherApp.ui.nav.BottomNavBar
 import com.example.WeatherApp.ui.nav.BottomNavItem
 import com.example.WeatherApp.ui.nav.MainNavHost
@@ -38,21 +41,26 @@ import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 
 
-@OptIn(ExperimentalMaterial3Api::class)
+
+
+
 class MainActivity : ComponentActivity() {
+    @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
 
             var showDialog by remember { mutableStateOf(false) }
-            val viewModel : MainViewModel by viewModels()
             val navController = rememberNavController()
-
             val currentRoute = navController.currentBackStackEntryAsState()
             val showButton = currentRoute.value?.destination?.hasRoute(Route.List::class) == true
             val launcher = rememberLauncherForActivityResult(contract =
                 ActivityResultContracts.RequestPermission(), onResult = {} )
+            val fbDB = remember { FBDatabase() }
+            val viewModel : MainViewModel = viewModel(
+                factory = MainViewModelFactory(fbDB)
+            )
             WeatherAppTheme {
                 if (showDialog) CityDialog(
                     onDismiss = { showDialog = false },
@@ -63,7 +71,10 @@ class MainActivity : ComponentActivity() {
                 Scaffold(
                     topBar = {
                         TopAppBar(
-                            title = { Text("SEJA MUITO BEM-VINDO!") },
+                            title = {
+                                val name = viewModel.user?.name?:"[carregando...]"
+                                Text("Bem-vindo! $name")
+                            } ,
 
                             actions = {
 
@@ -103,6 +114,8 @@ class MainActivity : ComponentActivity() {
 
                 ) { innerPadding ->
                     Box(modifier = Modifier.padding(innerPadding)) {
+                        launcher.launch(android.Manifest.permission.ACCESS_FINE_LOCATION
+                        )
                         MainNavHost(
                             navController,
                             viewModel
