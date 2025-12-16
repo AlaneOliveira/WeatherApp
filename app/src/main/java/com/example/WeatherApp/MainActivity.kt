@@ -50,7 +50,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
 
-            val weatherService = remember { WeatherService() }
+            val weatherService = remember { WeatherService(this) }
             var showDialog by remember { mutableStateOf(false) }
             val navController = rememberNavController()
             val currentRoute = navController.currentBackStackEntryAsState()
@@ -62,6 +62,7 @@ class MainActivity : ComponentActivity() {
             val viewModel: MainViewModel = viewModel(
                 factory = MainViewModelFactory(fbDB, weatherService)
             )
+
             WeatherAppTheme {
                 if (showDialog)
                     CityDialog(

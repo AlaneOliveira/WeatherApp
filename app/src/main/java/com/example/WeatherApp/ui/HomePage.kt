@@ -1,3 +1,7 @@
+
+package com.example.WeatherApp.ui
+
+import com.example.WeatherApp.R
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -19,19 +23,22 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.example.WeatherApp.model.Forecast
 import com.example.WeatherApp.model.MainViewModel
 import java.text.DecimalFormat
+
 
 @Composable
 fun HomePage(viewModel: MainViewModel) {
     Column {
         if (viewModel.city == null) {
-            // Tela inicial pedindo para selecionar uma cidade
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -48,48 +55,47 @@ fun HomePage(viewModel: MainViewModel) {
                 )
             }
         } else {
-            // Tela mostrando informações do clima da cidade selecionada
-            Row {
-                Icon(
-                    imageVector = Icons.Filled.AccountBox,
-                    contentDescription = "Localized description",
-                    modifier = Modifier.size(150.dp)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                val weather = viewModel.weather(viewModel.city!!)
+                AsyncImage( // Substitui o Icon
+                    model = viewModel.weather(viewModel.city!!).imgUrl,
+                    modifier = Modifier.size(140.dp),
+                    error = painterResource(id = R.drawable.loading),
+                    contentDescription = "Imagem"
                 )
+                Spacer(modifier = Modifier.size(12.dp))
+
                 Column {
-                    Spacer(modifier = Modifier.size(12.dp))
                     Text(
                         text = viewModel.city ?: "Selecione uma cidade...",
                         fontSize = 28.sp
                     )
-
-                    // Informações do clima
-                    viewModel.city?.let { name ->
-                        val weather = viewModel.weather(name)
-                        Spacer(modifier = Modifier.size(12.dp))
-                        Text(
-                            text = weather?.desc ?: "...",
-                            fontSize = 22.sp
-                        )
-                        Spacer(modifier = Modifier.size(12.dp))
-                        Text(
-                            text = "Temp: ${weather?.temp}℃",
-                            fontSize = 22.sp
-                        )
-                    }
+                    Spacer(modifier = Modifier.size(12.dp))
+                    Text(
+                        text = weather?.desc ?: "...",
+                        fontSize = 22.sp
+                    )
+                    Spacer(modifier = Modifier.size(12.dp))
+                    Text(
+                        text = "Temp: ${weather?.temp}℃",
+                        fontSize = 22.sp
+                    )
                 }
             }
 
-            // Forecast (previsão) em lista
             viewModel.forecast(viewModel.city!!)?.let { forecasts ->
                 LazyColumn {
-                    items(items = forecasts) { forecast ->
-                        ForecastItem(forecast, onClick = { })
+                    items(forecasts) { forecast ->
+                        ForecastItem(forecast = forecast, onClick = {})
                     }
                 }
             }
         }
     }
 }
+
+
+
 @Composable
 fun ForecastItem(
     forecast: Forecast,
@@ -103,10 +109,15 @@ fun ForecastItem(
         modifier = modifier.fillMaxWidth().padding(12.dp)
             .clickable( onClick = { onClick(forecast) }),
         verticalAlignment = Alignment.CenterVertically
-    ) {
-        Icon( imageVector = Icons.Filled.LocationOn,
-            contentDescription = "Localized description",
-            modifier = Modifier.size(48.dp) )
+    )
+    {
+        AsyncImage( // Substitui o Icon
+            model = forecast.imgUrl,
+            modifier = Modifier.size(70.dp),
+            error = painterResource(id = R.drawable.loading),
+            contentDescription = "Imagem"
+        )
+
         Spacer(modifier = Modifier.size(16.dp))
         Column {
             Text(modifier = Modifier, text = forecast.weather, fontSize = 24.sp)

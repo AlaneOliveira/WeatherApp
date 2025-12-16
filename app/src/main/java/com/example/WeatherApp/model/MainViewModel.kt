@@ -1,5 +1,6 @@
 package com.example.WeatherApp.model
 
+import androidx.browser.browseractions.BrowserServiceFileProvider.loadBitmap
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -117,6 +118,14 @@ class MainViewModel(
             // Se o retorno da API não for nulo, converte para o modelo local e salva no mapa _weather
             apiWeather?.let {
                 _weather[name] = apiWeather.toWeather()
+                loadBitmap(name)
+            }
+        }
+    }
+    fun loadBitmap(name: String) {
+        _weather[name]?.let { weather ->
+            service.getBitmap(weather.imgUrl) { bitmap ->
+                _weather[name] = weather.copy(bitmap = bitmap)
             }
         }
     }

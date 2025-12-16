@@ -1,5 +1,6 @@
 package com.example.WeatherApp.ui
 
+
 import android.app.Activity
 import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP
@@ -35,7 +36,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.WeatherApp.model.City
 import androidx.compose.foundation.lazy.items
+import androidx.compose.ui.res.painterResource
+import coil.compose.AsyncImage
 import com.example.WeatherApp.MainActivity
+import com.example.WeatherApp.R
 import com.example.WeatherApp.model.MainViewModel
 import com.example.WeatherApp.model.Weather
 import com.example.WeatherApp.ui.nav.Route
@@ -93,26 +97,28 @@ fun CityItem(
             .clickable { onClick() },
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(
-            Icons.Rounded.FavoriteBorder,
-            contentDescription = ""
+        AsyncImage( // Substitui o Icon(...)
+            model = weather.imgUrl,
+            modifier = Modifier.size(75.dp),
+            error = painterResource(id = R.drawable.loading),
+            contentDescription = "Imagem"
         )
+
         Spacer(modifier = Modifier.size(12.dp))
-        Column(modifier = modifier.weight(1f)) {
+
+        Column(modifier = Modifier.weight(1f)) {
             Text(
-                modifier = Modifier,
                 text = city.name,
                 fontSize = 24.sp
             )
             Text(
-                modifier = Modifier,
                 text = desc,
                 fontSize = 16.sp
             )
-
         }
+
         IconButton(onClick = onClose) {
-            Icon(Icons.Filled.Close, contentDescription = "Close")
+            Icon(Icons.Filled.Close, contentDescription = "Fechar cidade")
         }
     }
 }

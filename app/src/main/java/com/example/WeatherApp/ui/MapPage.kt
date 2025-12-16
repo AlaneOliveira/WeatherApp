@@ -1,6 +1,7 @@
 package com.example.WeatherApp.ui
 
 import android.content.pm.PackageManager
+import com.example.WeatherApp.R
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -9,6 +10,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.getDrawable
+import androidx.core.graphics.drawable.toBitmap
+import androidx.core.graphics.scale
 import com.example.WeatherApp.model.MainViewModel
 import com.example.WeatherApp.model.Weather
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
@@ -48,12 +52,17 @@ fun MapPage(viewModel: MainViewModel) {
     ) {
         viewModel.cities.forEach {
             if (it.location != null) {
+                val weather = viewModel.weather(it.name)
+                val image = weather.bitmap ?:
+                getDrawable(context, R.drawable.loading)!!.toBitmap()
+                val marker = BitmapDescriptorFactory
+                    .fromBitmap(image.scale(120,120))
                 // faz com o que as condições climáticas atuais pareçam no
                 //snippet ao clicar em um marcador no mapa
-                val weather = viewModel.weather(it.name)
                 val desc = if (weather == Weather.LOADING) "Carregando clima..."
                 else weather.desc
                 Marker( state = MarkerState(position = it.location),
+                    icon = marker,
                     title = it.name, snippet = desc
                 )
             }
