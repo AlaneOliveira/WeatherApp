@@ -27,6 +27,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.compose.rememberNavController
+import com.example.WeatherApp.api.WeatherService
 
 import com.example.WeatherApp.model.MainViewModel
 import com.example.WeatherApp.model.MainViewModelFactory
@@ -41,9 +42,6 @@ import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 
 
-
-
-
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,37 +49,45 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
 
+            val weatherService = remember { WeatherService() }
             var showDialog by remember { mutableStateOf(false) }
             val navController = rememberNavController()
             val currentRoute = navController.currentBackStackEntryAsState()
             val showButton = currentRoute.value?.destination?.hasRoute(Route.List::class) == true
-            val launcher = rememberLauncherForActivityResult(contract =
-                ActivityResultContracts.RequestPermission(), onResult = {} )
+            val launcher = rememberLauncherForActivityResult(
+                contract =
+                    ActivityResultContracts.RequestPermission(), onResult = {})
             val fbDB = remember { FBDatabase() }
-            val viewModel : MainViewModel = viewModel(
-                factory = MainViewModelFactory(fbDB)
+            val viewModel: MainViewModel = viewModel(
+                factory = MainViewModelFactory(fbDB, weatherService)
             )
+
             WeatherAppTheme {
-                if (showDialog) CityDialog(
-                    onDismiss = { showDialog = false },
-                    onConfirm = { city ->
-                        if (city.isNotBlank()) viewModel.add(city)
-                        showDialog = false
-                    })
+                if (showDialog)
+                    CityDialog(
+                        onDismiss = {
+                            showDialog = false },
+                        onConfirm = {
+                            city ->
+                            if (city.isNotBlank()) {
+                                viewModel.addCity(city)
+                            } // Chama o método para adicionar a cidade no viewModel
+                                showDialog = false
+                        })
                 Scaffold(
                     topBar = {
                         TopAppBar(
                             title = {
-                                val name = viewModel.user?.name?:"[carregando...]"
+                                val name = viewModel.user?.name ?: "[carregando...]"
                                 Text("Bem-vindo! $name")
-                            } ,
+                            },
 
                             actions = {
 
-                                IconButton( onClick = {
+                                IconButton(onClick = {
                                     Firebase.auth.signOut()
-                                   // finish() retirar o finish
-                                } ) {
+                                    // finish() retirar o finish
+                                }) {
                                     Icon(
                                         imageVector =
                                             Icons.AutoMirrored.Filled.ExitToApp,
@@ -114,7 +120,8 @@ class MainActivity : ComponentActivity() {
 
                 ) { innerPadding ->
                     Box(modifier = Modifier.padding(innerPadding)) {
-                        launcher.launch(android.Manifest.permission.ACCESS_FINE_LOCATION
+                        launcher.launch(
+                            android.Manifest.permission.ACCESS_FINE_LOCATION
                         )
                         MainNavHost(
                             navController,

@@ -38,8 +38,12 @@ fun MapPage(viewModel: MainViewModel) {
     GoogleMap( modifier = Modifier.fillMaxSize(),cameraPositionState = camPosState,properties = MapProperties(
         isMyLocationEnabled = hasLocationPermission
     ),
-        uiSettings = MapUiSettings(myLocationButtonEnabled = true), onMapClick = { //o onMapClick add uma nova cidade na lista fav usando a localizacao do clique, a nova listagem aparece em ListPage e quando removida tbm some do mapa
-        viewModel.add("Cidade@${it.latitude}:${it.longitude}", location = it)} // marcador que add cidades fav, mas somente aquelas que possuem localizacao definida
+        uiSettings = MapUiSettings(myLocationButtonEnabled = true),
+        //o onMapClick add uma nova cidade na lista fav usando a localizacao do clique, a nova listagem aparece em ListPage e quando removida tbm some do mapa
+        onMapClick = { location -> // passa apenas a localização, nome será buscado pela API
+                //viewModel.add("Cidade@${it.latitude}:${it.longitude}", location = it) // marcador que add cidades fav, mas somente aquelas que possuem localizacao definida
+                viewModel.addCity(location) //passa apenas a localizacao, sem precisar passar nome como antes
+        }
     ) {
         viewModel.cities.forEach {
             if (it.location != null) {
@@ -47,6 +51,7 @@ fun MapPage(viewModel: MainViewModel) {
                     title = it.name, snippet = "${it.location}")
             }
         }
+        // teste de marcadores
         Marker(
             state = MarkerState(position = recife),
             title = "Recife",

@@ -3,15 +3,31 @@ package com.example.WeatherApp.model
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import com.example.WeatherApp.api.WeatherService
 import com.example.WeatherApp.dbfb.FBCity
 import com.example.WeatherApp.dbfb.FBDatabase
 import com.example.WeatherApp.dbfb.FBUser
 import com.example.WeatherApp.dbfb.toFBCity
 import com.google.android.gms.maps.model.LatLng
 
-class MainViewModel (private val db: FBDatabase): ViewModel(),
-    FBDatabase.Listener {
+class MainViewModel (private val db: FBDatabase,
+                     private val service : WeatherService
+): ViewModel(), FBDatabase.Listener {
 
+    fun addCity(name: String) {
+        service.getLocation(name) { lat, lng ->
+            if (lat != null && lng != null) {
+                db.add(City(name=name, location=LatLng(lat, lng)).toFBCity())
+            }
+        }
+    }
+    fun addCity(location: LatLng) {
+        service.getName(location.latitude, location.longitude) { name ->
+            if (name != null) {
+                db.add(City(name = name, location = location).toFBCity())
+            }
+        }
+    }
 
     private val _cities = mutableStateListOf<City>()
     val cities
