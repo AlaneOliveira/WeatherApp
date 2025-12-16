@@ -61,7 +61,6 @@ class MainActivity : ComponentActivity() {
             val viewModel: MainViewModel = viewModel(
                 factory = MainViewModelFactory(fbDB, weatherService)
             )
-
             WeatherAppTheme {
                 if (showDialog)
                     CityDialog(

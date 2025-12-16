@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import com.example.WeatherApp.model.MainViewModel
+import com.example.WeatherApp.model.Weather
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.GoogleMap
@@ -47,8 +48,14 @@ fun MapPage(viewModel: MainViewModel) {
     ) {
         viewModel.cities.forEach {
             if (it.location != null) {
+                // faz com o que as condições climáticas atuais pareçam no
+                //snippet ao clicar em um marcador no mapa
+                val weather = viewModel.weather(it.name)
+                val desc = if (weather == Weather.LOADING) "Carregando clima..."
+                else weather.desc
                 Marker( state = MarkerState(position = it.location),
-                    title = it.name, snippet = "${it.location}")
+                    title = it.name, snippet = desc
+                )
             }
         }
         // teste de marcadores

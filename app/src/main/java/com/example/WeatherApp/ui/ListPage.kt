@@ -37,36 +37,39 @@ import com.example.WeatherApp.model.City
 import androidx.compose.foundation.lazy.items
 import com.example.WeatherApp.MainActivity
 import com.example.WeatherApp.model.MainViewModel
+import com.example.WeatherApp.model.Weather
 
 @Composable
-fun  ListPage(
+fun ListPage(
     modifier: Modifier = Modifier,
     viewModel: MainViewModel
 ) {
     val cityList = viewModel.cities
     val activity = LocalActivity.current as Activity // Para os Toasts
     LazyColumn(
+
         modifier = modifier
             .fillMaxSize()
             .padding(8.dp)
     ) {
-        items(cityList, key = { it.name }) { city ->
-            CityItem(city = city, onClose = {
-                viewModel.remove(city)
-                Toast.makeText(activity, " ${city.name} removida!", Toast.LENGTH_LONG).show()
-                activity.startActivity(
-                    Intent(activity, MainActivity::class.java).setFlags(
-                        FLAG_ACTIVITY_SINGLE_TOP
+        items(items = cityList, key = { it.name }) { city ->
+            CityItem(city = city, weather = viewModel.weather(city.name),
+                onClose = {
+                    viewModel.remove(city)
+                    Toast.makeText(activity, " ${city.name} removida!", Toast.LENGTH_LONG).show()
+                    activity.startActivity(
+                        Intent(activity, MainActivity::class.java).setFlags(
+                            FLAG_ACTIVITY_SINGLE_TOP
+                        )
                     )
-                )
-            }, onClick = {
-                Toast.makeText(activity, " ${city.name} selecionada!", Toast.LENGTH_LONG).show()
-                activity.startActivity(
-                    Intent(activity, MainActivity::class.java).setFlags(
-                        FLAG_ACTIVITY_SINGLE_TOP
+                }, onClick = {
+                    Toast.makeText(activity, " ${city.name} selecionada!", Toast.LENGTH_LONG).show()
+                    activity.startActivity(
+                        Intent(activity, MainActivity::class.java).setFlags(
+                            FLAG_ACTIVITY_SINGLE_TOP
+                        )
                     )
-                )
-            })
+                })
         }
     }
 }
@@ -74,12 +77,17 @@ fun  ListPage(
 @Composable
 fun CityItem(
     city: City,
+    weather: Weather,
     onClick: () -> Unit,
     onClose: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val desc = if (weather == Weather.LOADING) "Carregando clima..." else weather.desc
     Row(
-        modifier = modifier.fillMaxWidth().padding(8.dp).clickable { onClick() },
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(8.dp)
+            .clickable { onClick() },
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
@@ -88,13 +96,16 @@ fun CityItem(
         )
         Spacer(modifier = Modifier.size(12.dp))
         Column(modifier = modifier.weight(1f)) {
-            Text(modifier = Modifier,
+            Text(
+                modifier = Modifier,
                 text = city.name,
-                fontSize = 24.sp)
-            Text(modifier = Modifier,
-                text = city.weather?:"Carregando clima...",
-
-                fontSize = 16.sp)
+                fontSize = 24.sp
+            )
+            Text(
+                modifier = Modifier,
+                text = desc,
+                fontSize = 16.sp
+            )
 
         }
         IconButton(onClick = onClose) {
