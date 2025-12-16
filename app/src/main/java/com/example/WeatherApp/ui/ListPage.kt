@@ -38,6 +38,7 @@ import androidx.compose.foundation.lazy.items
 import com.example.WeatherApp.MainActivity
 import com.example.WeatherApp.model.MainViewModel
 import com.example.WeatherApp.model.Weather
+import com.example.WeatherApp.ui.nav.Route
 
 @Composable
 fun ListPage(
@@ -63,6 +64,8 @@ fun ListPage(
                         )
                     )
                 }, onClick = {
+                    viewModel.city = city.name
+                    viewModel.page = Route.Home // Esse código seleciona a página Home quando clicamos em uma cidade
                     Toast.makeText(activity, " ${city.name} selecionada!", Toast.LENGTH_LONG).show()
                     activity.startActivity(
                         Intent(activity, MainActivity::class.java).setFlags(

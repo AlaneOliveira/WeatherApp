@@ -4,11 +4,13 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.example.WeatherApp.api.WeatherService
+import com.example.WeatherApp.api.toForecast
 import com.example.WeatherApp.api.toWeather
 import com.example.WeatherApp.dbfb.FBCity
 import com.example.WeatherApp.dbfb.FBDatabase
 import com.example.WeatherApp.dbfb.FBUser
 import com.example.WeatherApp.dbfb.toFBCity
+import com.example.WeatherApp.ui.nav.Route
 import com.google.android.gms.maps.model.LatLng
 
 class MainViewModel(
@@ -34,6 +36,23 @@ class MainViewModel(
     init {
         db.setListener(this) // Registra o ViewModel como listener de alterações no banco
     }
+    private val _forecast = mutableStateMapOf<String, List<Forecast>?>()
+
+    fun forecast (name: String) = _forecast.getOrPut(name) {
+        loadForecast(name)
+        emptyList() // return
+    }
+    private fun loadForecast(name: String) {
+        service.getForecast(name) { apiForecast ->
+            apiForecast?.let {
+                _forecast[name] = apiForecast.toForecast()
+            }
+        }
+    }
+    private var _city = mutableStateOf<String?>(null)
+    var city: String?
+        get() = _city.value
+        set(tmp) { _city.value = tmp } // Essa propriedade registra a cidade atualmente selecionada na lista, cuja previsão será exibida na página Home
 
     // Adiciona uma cidade pelo nome (busca coordenadas usando WeatherService)
     fun addCity(name: String) {
@@ -101,5 +120,9 @@ class MainViewModel(
             }
         }
     }
+    private var _page = mutableStateOf<Route>(Route.Home)
+    var page: Route
+        get() = _page.value
+        set(tmp) { _page.value = tmp }
 
 }
