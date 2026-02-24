@@ -3,18 +3,19 @@ import java.util.Properties
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.kotlin.compose)
-    id("org.jetbrains.kotlin.plugin.serialization") version "2.2.20"
+    //alias(libs.plugins.kotlin.compose)
+
+    alias(libs.plugins.ksp)
+
+   id("org.jetbrains.kotlin.plugin.serialization") version "2.3.10"
     id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
-    alias(libs.plugins.google.gms.google.services)
-    id("com.google.devtools.ksp") version "2.3.4"
+    alias(libs.plugins.kotlin.compose)
+
 }
 
 android {
     namespace = "com.weatherapp"
-    compileSdk {
-        version = release(36)
-    }
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.weatherapp"
@@ -27,9 +28,11 @@ android {
         val keyFile = project.rootProject.file("local.properties")
         val props = Properties()
         props.load(keyFile.inputStream())
+
         buildConfigField(
-            "String", "WEATHER_API_KEY",
-            props.getProperty("WEATHER_API_KEY")
+            "String",
+            "WEATHER_API_KEY",
+            "\"${props.getProperty("WEATHER_API_KEY")}\""
         )
 
     }
@@ -47,9 +50,7 @@ android {
         sourceCompatibility = JavaVersion.VERSION_21
         targetCompatibility = JavaVersion.VERSION_21
     }
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.3"
-    }
+
 //    kotlinOptions {
 //      jvmTarget = "11"
 // }
