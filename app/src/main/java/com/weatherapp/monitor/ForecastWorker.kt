@@ -49,9 +49,10 @@ class ForecastWorker(
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setContentTitle(cityName)
             .setContentText("Clique para ver previsão do tempo atualizada.")
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
+            .setDefaults(NotificationCompat.DEFAULT_ALL)
         val notificationManager: NotificationManager =
             this.applicationContext
                 .getSystemService(Context.NOTIFICATION_SERVICE)
@@ -65,9 +66,12 @@ class ForecastWorker(
     private fun createNotificationChannel() {
         val name = "WeatherApp"
         val descriptionText = "WeatherApp Notifications"
-        val importance = NotificationManager.IMPORTANCE_DEFAULT
-        val channel = NotificationChannel(CHANNEL_ID, name, importance)
-            .apply { description = descriptionText }
+        val importance = NotificationManager.IMPORTANCE_HIGH // força a notificacao
+        val channel = NotificationChannel(CHANNEL_ID, name, importance).apply {
+            description = descriptionText
+            enableVibration(true)
+            enableLights(true)
+        }
         val notificationManager: NotificationManager = this.applicationContext
             .getSystemService(Context.NOTIFICATION_SERVICE)
                 as NotificationManager
