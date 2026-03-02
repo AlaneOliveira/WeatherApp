@@ -1,35 +1,51 @@
 package com.weatherapp.api
 
+import android.app.Application
 import android.content.Context
+import android.content.Intent
+import android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK
+import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
+import android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP
 import android.graphics.Bitmap
 import androidx.core.graphics.drawable.toBitmap
 import coil.ImageLoader
 import coil.request.ImageRequest
 import com.google.android.gms.maps.model.LatLng
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
+import com.weatherapp.LoginActivity
+import com.weatherapp.MainActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-class WeatherService(private val context: Context) {
-    private var weatherAPI: WeatherServiceAPI
-    private val imageLoader = ImageLoader.Builder(context)
-        .allowHardware(false).build()
+class WeatherApp : Application() {
+    val FLAGS =
+        FLAG_ACTIVITY_SINGLE_TOP or        // Não cria atividade se no topo
+                FLAG_ACTIVITY_NEW_TASK or // Cria nova tarefa
+                FLAG_ACTIVITY_CLEAR_TASK // Limpa o backstack
 
-    init {
-        val retrofitAPI = Retrofit.Builder().baseUrl(WeatherServiceAPI.BASE_URL)
-            .addConverterFactory(GsonConverterFactory.create()).build()
-        weatherAPI = retrofitAPI.create(WeatherServiceAPI::class.java)
+    override fun onCreate() {
+        super.onCreate()
+        Firebase.auth.addAuthStateListener { firebaseAuth ->
+            if (firebaseAuth.currentUser != null) {
+                goToMain()
+            } else {
+                goToLogin()
+            }
+        }
     }
 
-    suspend fun getName(lat: Double, lng: Double): String? = withContext(Dispatchers.IO) {
-        search("$lat,$lng")?.name // retorno
+    private fun goToMain() {
+        this.startActivity(Intent(this, MainActivity::class.java).setFlags(FLAGS))
     }
 
-    suspend fun getLocation(name: String): LatLng? = withContext(Dispatchers.IO) {
-        search(name)?.let { LatLng(it.lat ?: 0.0, it.lon ?: 0.0) }
+    private fun goToLogin() {
+        this.startActivity(Intent(this, LoginActivity::class.java).setFlags(FLAGS))
     }
+}
 
     private fun search(query: String): APILocation? {
         val call: Call<List<APILocation>?> = weatherAPI.search(query)
